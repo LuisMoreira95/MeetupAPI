@@ -1,0 +1,40 @@
+﻿using Microsoft.EntityFrameworkCore;
+using System.IO;
+
+namespace MMeetupAPI.Entities
+{
+    public class MeetupContext : DbContext
+    {
+        public MeetupContext(DbContextOptions dbContextOptions) : base(dbContextOptions)
+        {
+
+        }
+
+        // Propriteies that create SQL Tables
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Meetup> Meetups { get; set; }
+        public DbSet<Location> Locations { get; set; }
+        public DbSet<Lecture> Lectures { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Meetup>().HasOne(c => c.CreatedBy);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Role);
+
+            modelBuilder.Entity<Meetup>()
+                .HasOne(m => m.Location)
+                .WithOne(l => l.Meetup)
+                .HasForeignKey<Location>(l => l.MeetupId);
+
+            modelBuilder.Entity<Meetup>()
+                .HasMany(m => m.Lectures)
+                .WithOne(l => l.Meetup);
+        }
+    }
+}
